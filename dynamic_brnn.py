@@ -7,18 +7,11 @@
 # Description  : Dynamic Bidirectional RNN model for Automatic Speech Recognition
 # ******************************************************
 
-import argparse
-import time
-import datetime
-import os
-from six.moves import cPickle
-from functools import wraps
-
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.rnn import bidirectional_dynamic_rnn
 
-from speechvalley.utils import load_batched_data, describe, setAttrs, list_to_sparse_tensor, dropout, get_edit_distance
+from speechvalley.utils import describe, dropout
 from speechvalley.utils import lnBasicRNNCell, lnGRUCell, lnBasicLSTMCell
 
 def build_multi_dynamic_brnn(args,

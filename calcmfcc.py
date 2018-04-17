@@ -9,13 +9,11 @@
 import numpy
 from scipy.fftpack import dct
 
-from speechvalley.feature.core.sigprocess import audio2frame, pre_emphasis, spectrum_power
+from sigprocess import audio2frame, pre_emphasis, spectrum_power
 try:
     xrange(1)
 except:
     xrange=range
-
-
 
 def calcfeat_delta_delta(signal,samplerate=16000,win_length=0.025,win_step=0.01,filters_num=26,NFFT=512,low_freq=0,high_freq=None,pre_emphasis_coeff=0.97,cep_lifter=22,appendEnergy=True,mode='mfcc',feature_len=13):
     """Calculate features, fist order difference, and second order difference coefficients.
