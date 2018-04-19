@@ -1,5 +1,6 @@
 import time
 from functools import wraps
+import tensorflow as tf
 
 class dotdict(dict):
     __getattr__ = dict.get
@@ -20,16 +21,7 @@ def describe(func):
     return wrapper
 
 def output_to_sequence(lmt):
-    sequences = []
-    start = 0
-    sequences.append([])
-    for i in range(len(lmt[0])):
-        if lmt[0][i][0] == start:
-            sequences[start].append(lmt[1][i])
-        else:
-            start = start + 1
-            sequences.append([])
-
+    indexes = lmt[0][1]
     seq = []
     for ind in indexes:
         if ind == 0:

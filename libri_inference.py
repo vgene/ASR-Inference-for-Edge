@@ -19,13 +19,13 @@ def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_le
     feat = calcfeat_delta_delta(sig,rate,
         win_length=win_len,win_step=win_step,mode=mode,feature_len=feature_len)
     feat = preprocessing.scale(feat)
-    feat = np.transpose(feat)
+    #feat = np.transpose(feat)
     return feat
 
 def getResult(args, audio_file):
     feat = getFeature(audio_file)
-    seqLength = feat.shape[1]
-    maxTimeSteps = feat.shape[1]
+    seqLength = feat.shape[0]
+    maxTimeSteps = feat.shape[0]
     model = DBiRNN(args, maxTimeSteps)
 
     # num_params = count_params(model, mode='trainable')
@@ -39,18 +39,21 @@ def getResult(args, audio_file):
         ckpt = tf.train.get_checkpoint_state(args.savedir)
         if ckpt and ckpt.model_checkpoint_path:
             model.saver.restore(sess, ckpt.model_checkpoint_path)
-            print('Model restored from:' + savedir)
-            batchInputs = [feat]
+            print('Model restored from:' + args.savedir)
+            batchInputs = feat[:,np.newaxis,:]
+            #batchInputs = feat
             batchSeqLengths = [seqLength]
             feedDict = {model.inputX: batchInputs, model.seqLengths: batchSeqLengths}
 
-            l, pre = sess.run([model.loss, model.predictions], feed_dict=feedDict)
+            pre = sess.run([model.predictions], feed_dict=feedDict)
 
-            batchErrors[batch] = er
-            print('\n{} mode, total:{},subdir:{}/{},batch:{}/{},test loss={:.3f},mean test CER={:.3f}\n'.format(
-                level, totalN, id_dir+1, len(feature_dirs), batch+1, len(batchRandIxs), l, er/batch_size))
+            #print('\n{} mode, total:{},subdir:{}/{},batch:{}/{},test loss={:.3f},mean test CER={:.3f}\n'.format(
+            #    level, totalN, id_dir+1, len(feature_dirs), batch+1, len(batchRandIxs), l, er/batch_size))
+            print(pre)
+            print(pre[0][0][0])
+            
 
-            print('Output:\n' + output_to_sequence(pre, type=level))
+            print('Output:\n' + output_to_sequence(pre))
 
 def main():
     args = dict()
@@ -59,11 +62,11 @@ def main():
     args['model'] = 'DBiRNN'
     # args['rnncell'] = 'lstm'
     args['num_layer'] = 2
-    args['activation'] = activation_fn('tanh')
+    args['activation'] = activation_functions_dict['tanh']
     args['batch_size'] = 1
     args['num_hidden'] = 256
     args['num_feature'] = 39
-    args['num_classes'] = 30
+    args['num_class'] = 29
     args['num_epochs'] = 1
     args['savedir'] = '/home/zyxu/libri_test/models/04200100'
     args = dotdict(args)
