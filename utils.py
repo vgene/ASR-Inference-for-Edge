@@ -20,25 +20,25 @@ def describe(func):
     return wrapper
 
 def output_to_sequence(lmt):
-	sequences = []
-	start = 0
-	sequences.append([])
-	for i in range(len(lmt[0])):
-	    if lmt[0][i][0] == start:
-	        sequences[start].append(lmt[1][i])
-	    else:
-	        start = start + 1
-	        sequences.append([])
+    sequences = []
+    start = 0
+    sequences.append([])
+    for i in range(len(lmt[0])):
+        if lmt[0][i][0] == start:
+            sequences[start].append(lmt[1][i])
+        else:
+            start = start + 1
+            sequences.append([])
 
-	seq = []
-	for ind in indexes:
-	    if ind == 0:
-	        seq.append(' ')
-	    elif ind == 27:
-	        seq.append("'")
-	    elif ind == 28:
-	        pass
-	    else:
-	        seq.append(chr(ind+96))
-	seq = ''.join(seq)
-	return seq
+    seq = []
+    for ind in indexes:
+        if ind == 0:
+            seq.append(' ')
+        elif ind == 27:
+            seq.append("'")
+        elif ind == 28:
+            pass
+        else:
+            seq.append(chr(ind+96))
+    seq = ''.join(seq)
+    return seq

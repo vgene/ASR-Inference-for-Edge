@@ -15,11 +15,11 @@ def audio2frame(signal,frame_length,frame_step,winfunc=lambda x:numpy.ones((x,))
 
     Args:
     signal: 1-D numpy array.
-	frame_length: In this situation, frame_length=samplerate*win_length, since we
+    frame_length: In this situation, frame_length=samplerate*win_length, since we
         use numbers of samples as unit.
     frame_step:In this situation, frame_step=samplerate*win_step,
         representing the number of samples between the start point of adjacent frames.
-	winfunc:lambda function, to generate a vector with shape (x,) filled with ones.
+    winfunc:lambda function, to generate a vector with shape (x,) filled with ones.
 
     Returns:
         frames*win: 2-D numpy array with shape (frames_num, frame_length).
