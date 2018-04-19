@@ -88,8 +88,7 @@ class DBiRNN(object):
             logits3d = tf.stack(logits)
             # self.loss = tf.reduce_mean(tf.nn.ctc_loss(self.targetY, logits3d, self.seqLengths)) #Apr 19
 
-            self.predictions = tf.to_int32(
-                tf.nn.ctc_beam_search_decoder(logits3d, self.seqLengths, merge_repeated=False))
+            self.predictions = tf.nn.ctc_beam_search_decoder(logits3d, self.seqLengths, merge_repeated=False)
             # if args.level == 'cha':
             #     self.errorRate = tf.reduce_sum(tf.edit_distance(self.predictions, self.targetY, normalize=True))
             self.initial_op = tf.global_variables_initializer()
