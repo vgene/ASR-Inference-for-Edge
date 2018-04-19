@@ -11,7 +11,7 @@ from tensorflow.python.ops import ctc_ops as ctc
 
 # from speechvalley.utils import count_params
 from dynamic_brnn import DBiRNN
-from utils import dotdict, describe, output_to_sequence
+from utils import dotdict, describe, output_to_sequence, activation_functions_dict
 from calcmfcc import calcfeat_delta_delta
 
 def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_len = 0.02):
@@ -53,12 +53,13 @@ def getResult(args, audio_file):
             print('Output:\n' + output_to_sequence(pre, type=level))
 
 def main():
-    args['mode'] = 'test'
-    args['level'] = 'cha'
+    args = dict()
+    # args['mode'] = 'test'
+    # args['level'] = 'cha'
     args['model'] = 'DBiRNN'
-    args['rnncell'] = 'lstm'
+    # args['rnncell'] = 'lstm'
     args['num_layer'] = 2
-    args['activation'] = 'tanh'
+    args['activation'] = activation_fn('tanh')
     args['batch_size'] = 1
     args['num_hidden'] = 256
     args['num_feature'] = 39
