@@ -49,11 +49,9 @@ def getResult(args, audio_file):
 
             #print('\n{} mode, total:{},subdir:{}/{},batch:{}/{},test loss={:.3f},mean test CER={:.3f}\n'.format(
             #    level, totalN, id_dir+1, len(feature_dirs), batch+1, len(batchRandIxs), l, er/batch_size))
-            print(pre)
-            print(pre[0][0][0])
-            
 
-            print('Output:\n' + output_to_sequence(pre))
+            print('Output:\n' + output_to_sequence(pre[0][0]))
+            print('Log Prob\n'+str(pre[1][0]))
 
 def main():
     args = dict()
