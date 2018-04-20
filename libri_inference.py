@@ -34,7 +34,10 @@ def getResult(args, audio_file):
     # model.config['all params'] = all_num_params
     print(model.config)
 
-    with tf.Session(graph=model.graph) as sess:
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+
+    with tf.Session(graph=model.graph, config=config) as sess:
         # restore from stored model
         ckpt = tf.train.get_checkpoint_state(args.savedir)
         if ckpt and ckpt.model_checkpoint_path:
@@ -68,9 +71,9 @@ def main():
     args['num_feature'] = 39
     args['num_class'] = 29
     args['num_epochs'] = 1
-    args['savedir'] = '/home/zyxu/libri_test/models/04200100'
+    args['savedir'] = './models/04200100'
     args = dotdict(args)
 
-    getResult(args, "/home/zyxu/libri_test/test/1069-133709-0000.wav")
+    getResult(args, "./test/1069-133709-0000.wav")
 
 main()
