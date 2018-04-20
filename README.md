@@ -5,11 +5,13 @@ FOR TX1:
 1. Install Lapack
   sudo apt-get install liblapack-dev
 
-2. Install TensorFlow:
+2. Install requirements
+  pip install -r requirements-tx1.txt
+
+3. Install TensorFlow:
   https://github.com/jetsonhacks/installTensorFlowJetsonTX/tree/master/TX1
 
-3. Install other requirements
-  pip install -r requirements-tx1.txt
+
 
 FOR AMD64:
 
