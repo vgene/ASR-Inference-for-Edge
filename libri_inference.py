@@ -44,14 +44,16 @@ def getResult(args, audio_file):
             #batchInputs = feat
             batchSeqLengths = [seqLength]
             feedDict = {model.inputX: batchInputs, model.seqLengths: batchSeqLengths}
-
+            
+            start_time = time.time()
             pre = sess.run([model.predictions], feed_dict=feedDict)
 
             #print('\n{} mode, total:{},subdir:{}/{},batch:{}/{},test loss={:.3f},mean test CER={:.3f}\n'.format(
             #    level, totalN, id_dir+1, len(feature_dirs), batch+1, len(batchRandIxs), l, er/batch_size))
 
             print('Output:\n' + output_to_sequence(pre[0][0]))
-            print('Log Prob\n'+str(pre[1][0]))
+            print('Log Prob: '+str(pre[0][1][0][0]))
+            print('Inference uses ' + str(time.time()-start_time) + 's for ?s audio')
 
 def main():
     args = dict()
@@ -69,6 +71,6 @@ def main():
     args['savedir'] = '/home/zyxu/libri_test/models/04200100'
     args = dotdict(args)
 
-    getResult(args, "/home/zyxu/libri_test/test/1188-133604-0000.wav")
+    getResult(args, "/home/zyxu/libri_test/test/1069-133709-0000.wav")
 
 main()
