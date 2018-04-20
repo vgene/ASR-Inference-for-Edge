@@ -1,21 +1,32 @@
-## Usage
+## Introduction
+
+Automated speech recognition inference for edge devices including Jetson TX1 and Altera Arria 10, etc.
+
+This project modified from following repo. I also used that repo to complete the training process. This modified project is specificly designed for inference process on edge devices. Redundant dependencies are removed.
+
+https://github.com/zzw922cn/Automatic_Speech_Recognition
+
+__Make sure you are using Python 3.5!__
+
+## Preparation
 
 FOR TX1:
 
-1. Install Lapack
-  sudo apt-get install liblapack-dev
+1. Install Lapack: sudo apt-get install liblapack-dev
 
-2. Install requirements
-  pip install -r requirements-tx1.txt
+2. Install requirements: pip install -r requirements-tx1.txt
 
-3. Install TensorFlow:
-  https://github.com/jetsonhacks/installTensorFlowJetsonTX/tree/master/TX1
-
-
+3. Install TensorFlow: https://github.com/jetsonhacks/installTensorFlowJetsonTX/tree/master/TX1
 
 FOR AMD64:
 
-  pip install -r requirements.txt
+1. pip install -r requirements.txt
+
+## Usage
+
+Configure args in libri_inference.py, including audio file path and model path.
+
+Run: python3 libri_inference.py
 
 ## Procedure
 
@@ -32,9 +43,9 @@ FOR AMD64:
 
 - txt split
 
-- 转小写 
+- to lower case
 
-- 转feature
+- getfeature
 ```
 import scipy.io.wavfile as wav
 from sklearn import preprocessing
