@@ -55,7 +55,7 @@ def getResult(args, audio_file):
             #    level, totalN, id_dir+1, len(feature_dirs), batch+1, len(batchRandIxs), l, er/batch_size))
 
             print('Output:\n' + output_to_sequence(pre[0][0]))
-            print('Log Prob: '+str(pre[0][1][0][0]))
+            print('Log Prob: '+str(pre[0][1][0][0]/seqLength))
             print('Inference uses ' + str(time.time()-start_time) + 's for ?s audio')
 
 def main():
@@ -71,7 +71,7 @@ def main():
     args['num_feature'] = 39
     args['num_class'] = 29
     args['num_epochs'] = 1
-    args['savedir'] = './models/04200100'
+    args['savedir'] = './models/04232130'
     args = dotdict(args)
 
     getResult(args, "./test/1069-133709-0000.wav")
