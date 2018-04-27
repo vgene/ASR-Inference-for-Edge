@@ -74,6 +74,6 @@ def main():
     args['savedir'] = './models/04232130'
     args = dotdict(args)
 
-    getResult(args, "./test/1069-133709-0000.wav")
+    getResult(args, "./test/test.wav")
 
 main()
