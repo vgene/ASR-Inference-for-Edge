@@ -20,10 +20,10 @@ def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_le
         win_length=win_len,win_step=win_step,mode=mode,feature_len=feature_len)
     feat = preprocessing.scale(feat)
     #feat = np.transpose(feat)
-    return feat
+    return feat, len(sig)*(1/rate)
 
-def getResult(args, audio_file):
-    feat = getFeature(audio_file)
+def libri_infer(args, audio_file):
+    feat, feat_len = getFeature(audio_file)
     seqLength = feat.shape[0]
     maxTimeSteps = feat.shape[0]
     model = DBiRNN(args, maxTimeSteps)
@@ -47,16 +47,20 @@ def getResult(args, audio_file):
             #batchInputs = feat
             batchSeqLengths = [seqLength]
             feedDict = {model.inputX: batchInputs, model.seqLengths: batchSeqLengths}
-            
+
             start_time = time.time()
             pre = sess.run([model.predictions], feed_dict=feedDict)
 
             #print('\n{} mode, total:{},subdir:{}/{},batch:{}/{},test loss={:.3f},mean test CER={:.3f}\n'.format(
             #    level, totalN, id_dir+1, len(feature_dirs), batch+1, len(batchRandIxs), l, er/batch_size))
 
-            print('Output:\n' + output_to_sequence(pre[0][0]))
-            print('Log Prob: '+str(pre[0][1][0][0]/seqLength))
-            print('Inference uses ' + str(time.time()-start_time) + 's for ?s audio')
+            result = output_to_sequence(pre[0][0])
+            log_prob = pre[0][1][0][0]/seqLength
+            # print('Output:\n' + result)
+            # print('Log Prob: '+str(log_prob))
+            print('Inference uses ' + str(time.time()-start_time) + 's for '+str(feat_len)+'s audio')
+
+    return result, log_prob
 
 def main():
     args = dict()
@@ -76,4 +80,5 @@ def main():
 
     getResult(args, "./test/out.wav")
 
-main()
+if __name__ == '__main__':
+    main()
