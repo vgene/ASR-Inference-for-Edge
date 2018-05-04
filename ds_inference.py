@@ -7,6 +7,7 @@ import sys
 import scipy.io.wavfile as wav
 import numpy as np
 from deepspeech.model import Model
+from utils import dotdict
 
 def preprocess_audio(audio_path):
 
@@ -77,4 +78,13 @@ def ds_infer(args, audio_path):
     print('Inference took %0.3fs for %0.3fs audio file.' % (inference_end, audio_length), file=sys.stderr)
 
 if __name__ == '__main__':
-    main()
+
+    audio = "./test/out.wav"
+    args = dict()
+    args['dir_path'] = "./deepspeech-models/"
+    args['model'] = dir_path+"output_graph.pb"
+    args['lm'] = dir_path+"lm.binary"
+    args['trie'] = dir_path+"trie"
+    args['alphabet'] = dir_path+"alphabet.txt"
+    ds_args = dotdict(args)
+    ds_infer(args, )
