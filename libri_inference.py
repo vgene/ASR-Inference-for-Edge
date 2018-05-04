@@ -78,7 +78,7 @@ def main():
     args['savedir'] = './models/04232130'
     args = dotdict(args)
 
-    getResult(args, "./test/out.wav")
+    libri_infer(args, "./test/out.wav")
 
 if __name__ == '__main__':
     main()
