@@ -36,7 +36,7 @@ N_CONTEXT = 9
 
 def preprocess_audio(audio_path):
 
-	fs, audio = wav.read(audio_path)
+    fs, audio = wav.read(audio_path)
     if fs != 16000:
         if fs < 16000:
             print('Warning: original sample rate (%d) is lower than 16kHz. Up-sampling might produce erratic speech recognition.' % (fs), file=sys.stderr)
