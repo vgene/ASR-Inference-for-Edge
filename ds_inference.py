@@ -87,4 +87,4 @@ if __name__ == '__main__':
     args['trie'] = dir_path+"trie"
     args['alphabet'] = dir_path+"alphabet.txt"
     ds_args = dotdict(args)
-    ds_infer(args, )
+    ds_infer(args, audio)
