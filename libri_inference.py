@@ -1,4 +1,4 @@
-import time
+from timeit import default_timer as timer
 import os
 import random
 
@@ -17,16 +17,16 @@ activation_functions_dict = {
 }
 
 def libri_infer(args, audio_file):
-    start_time = time.time()
+    t0 = timer()
     feat, feat_len = getFeature(audio_file)
-    preprocess_time = time.time() - start_time
+    t1 = timer()
 
     seqLength = feat.shape[0]
     maxTimeSteps = feat.shape[0]
     args.activation = activation_functions_dict[args.activation]
 
     model = DBiRNN(args, maxTimeSteps)
-    build_model_time = time.time() - preprocess_time
+    t2 = timer()
 
     print(model.config)
     config = tf.ConfigProto()
@@ -42,16 +42,16 @@ def libri_infer(args, audio_file):
             #batchInputs = feat
             batchSeqLengths = [seqLength]
             feedDict = {model.inputX: batchInputs, model.seqLengths: batchSeqLengths}
-            start_session_time = time.time() - build_model_time
+            t3 = timer()
 
             pre = sess.run([model.predictions], feed_dict=feedDict)
             result = output_to_sequence(pre[0][0])
             log_prob = pre[0][1][0][0]/seqLength
-            infer_time = time.time()-start_session_time
+            t4 = timer()
 
-    return {"result":result, "log_prob":log_prob, "preprocess_time":preprocess_time,
-            "build_model_time":build_model_time, "start_session_time":start_session_time,
-            "infer_time":infer_time}
+    return {"result":result, "log_prob":log_prob, "preprocess_time":t1-t0,
+            "build_model_time":t2-t1, "start_session_time":t3-t2,
+            "infer_time":t4-t3}
 
 def main():
     args = dict()
