@@ -2,6 +2,7 @@ import time
 from functools import wraps
 import subprocess
 import scipy.io.wavfile as wav
+import numpy as np
 
 class dotdict(dict):
     __getattr__ = dict.get

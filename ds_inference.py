@@ -41,7 +41,7 @@ def load_model(args):
     return ds
 
 def ds_server(args=None):
-    if ars is None:
+    if args is None:
         args = get_args()
 
     ds = load_model(args)
