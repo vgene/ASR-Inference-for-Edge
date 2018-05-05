@@ -2,7 +2,7 @@ import python_bind
 import pickle
 import numpy as np
 
-audio = "./test/out.wav"
+audio = "./test/1069-133709-0000.wav"
 
 def preprocess_audio(audio_path):
     import subprocess
