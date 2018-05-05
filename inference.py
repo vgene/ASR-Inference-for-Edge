@@ -55,8 +55,8 @@ def get_results_cloud(args, audio):
     ds_result = pickle.loads(python_bind.recv())
     t3 = timer()
 
-    return {"cloud_result":ds_result, "cloud_preprocess_time": t1_t0,
-            "cloud_transfer_time":t2-t1, "cloud_receive_time":t3-t2}
+    return {"cloud_result":ds_result, "cloud_preprocess_time": t1 - t0,
+            "cloud_transfer_time":t2 - t1, "cloud_receive_time":t3 - t2}
 
 def main():
     # Main Logic
@@ -83,7 +83,7 @@ def main():
     times.pop('edge_log_prob', None)
     print(edge_total_time)
     print(cloud_total_time)
-    pprint(times)
+    pprint.pprint(times)
 
 if __name__ == '__main__':
     main()
