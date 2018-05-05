@@ -59,13 +59,13 @@ def get_results_cloud(args, audio):
 
 def main():
     parser = argparse.ArgumentParser(description='Edge Computing for ASR - Test Run')
-    parser.add_argument('audio_file', nargs="+", type=str,
+    parser.add_argument('audio_file', type=str,
                         help='Path to the audio file to run (WAV format)')
-    parser.add_argument('ref_file', nargs="?", type=str,
-                        help='Path to the configuration file specifying the alphabet used by the network')
-    parser.add_argument('cloud_ip', type=str, nargs='?',
+    parser.add_argument('--ref_file', nargs="?", type=str,
+                        help='Path to the audio reference file')
+    parser.add_argument('--cloud_ip', type=str, nargs='?',
                         help='IP of cloud server')
-    parser.add_argument('cloud_port', type=int, nargs='?',
+    parser.add_argument('--cloud_port', type=int, nargs='?',
                         help='Port of cloud server')
     args = parser.parse_args()
 
@@ -97,13 +97,13 @@ def main():
     # Calculate WER
     if args.ref_file:
         from wer import wer
-        with open(ref_file, 'r') as ref_text:
+        with open(args.ref_file, 'r') as ref_text:
             ref = ref_text.readlines()[0]
 
-            edge_wer, edge_error_count, ref_token_count = wer(ref, edge_results['edge_result'])
-            cloud_wer, cloud_error_count, ref_token_count = wer(ref, edge_results['edge_result'])
-            print('Edge WER: {:10.3%} ({:10d} / {:10d})'.format(edge_wer, edge_error_count, ref_token_count))
-            print('Edge WER: {:10.3%} ({:10d} / {:10d})'.format(cloud_wer, cloud_error_count, ref_token_count))
+            edge_wer, edge_match_count, ref_token_count = wer(ref, edge_results['edge_result'])
+            cloud_wer, cloud_match_count, ref_token_count = wer(ref, cloud_results['cloud_result'])
+            print('Edge WER: {:10.3%} ({:4d} / {:4d})'.format(edge_wer, edge_match_count, ref_token_count))
+            print('Edge WER: {:10.3%} ({:4d} / {:4d})'.format(cloud_wer, cloud_match_count, ref_token_count))
 
     times = {**edge_results, **cloud_results}
     times.pop('cloud_result', None)
