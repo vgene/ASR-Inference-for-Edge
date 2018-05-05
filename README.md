@@ -10,6 +10,9 @@ __Make sure you are using Python 3.5!__
 
 ## Preparation
 
+Need to install sox
+  sudo apt-get install sox
+
 FOR TX1:
 
 1. Install Lapack: sudo apt-get install liblapack-dev

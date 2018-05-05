@@ -1,6 +1,7 @@
 import time
 from functools import wraps
-import tensorflow as tf
+import subprocess
+import scipy.io.wavfile as wav
 
 class dotdict(dict):
     __getattr__ = dict.get
@@ -8,8 +9,6 @@ class dotdict(dict):
     __delattr__ = dict.__delitem__
 
 def describe(func):
-    ''' wrap function,to add some descriptions for function and its running time
-    '''
     @wraps(func)
     def wrapper(*args, **kwargs):
         print(func.__name__+'...')
@@ -35,8 +34,25 @@ def output_to_sequence(lmt):
     seq = ''.join(seq)
     return seq
 
-activation_functions_dict = {
-    'sigmoid': tf.sigmoid, 'tanh': tf.tanh, 'relu': tf.nn.relu, 'relu6': tf.nn.relu6,
-    'elu': tf.nn.elu, 'softplus': tf.nn.softplus, 'softsign': tf.nn.softsign
-    # for detailed intro, go to https://www.tensorflow.org/versions/r0.12/api_docs/python/nn/activation_functions_
-    }
+
+def preprocess_audio(audio_path):
+    fs, audio = wav.read(audio_path)
+    if fs != 16000:
+        if fs < 16000:
+            print('Warning: original sample rate (%d) is lower than 16kHz. Up-sampling might produce erratic speech recognition.' % (fs), file=sys.stderr)
+        fs, audio = convert_samplerate(audio_path)
+
+    sox_cmd = 'sox {} --type raw --bits 16 --channels 1 --rate 16000 - '.format(audio_path)
+    try:
+        p = subprocess.Popen(sox_cmd.split(),
+                             stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        output, err = p.communicate()
+
+        if p.returncode:
+            raise RuntimeError('SoX returned non-zero status: {}'.format(err))
+
+    except OSError as e:
+        raise OSError('SoX not found, use 16kHz files or install it: ', e)
+
+    audio = np.fromstring(output, dtype=np.int16)
+    return 16000, audio

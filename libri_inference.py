@@ -11,8 +11,15 @@ from tensorflow.python.ops import ctc_ops as ctc
 
 # from speechvalley.utils import count_params
 from dynamic_brnn import DBiRNN
-from utils import dotdict, describe, output_to_sequence, activation_functions_dict
+from utils import dotdict, describe, output_to_sequence
 from calcmfcc import calcfeat_delta_delta
+
+activation_functions_dict = {
+    'sigmoid': tf.sigmoid, 'tanh': tf.tanh, 'relu': tf.nn.relu, 'relu6': tf.nn.relu6,
+    'elu': tf.nn.elu, 'softplus': tf.nn.softplus, 'softsign': tf.nn.softsign
+    # for detailed intro, go to https://www.tensorflow.org/versions/r0.12/api_docs/python/nn/activation_functions_
+}
+
 
 def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_len = 0.02):
     (rate,sig)= wav.read(filename)
@@ -26,14 +33,11 @@ def libri_infer(args, audio_file):
     feat, feat_len = getFeature(audio_file)
     seqLength = feat.shape[0]
     maxTimeSteps = feat.shape[0]
+    args.activation = activation_functions_dict[args.activation]
+
     model = DBiRNN(args, maxTimeSteps)
 
-    # num_params = count_params(model, mode='trainable')
-    # all_num_params = count_params(model, mode='all')
-    # model.config['trainable params'] = num_params
-    # model.config['all params'] = all_num_params
     print(model.config)
-
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
 
@@ -51,13 +55,8 @@ def libri_infer(args, audio_file):
             start_time = time.time()
             pre = sess.run([model.predictions], feed_dict=feedDict)
 
-            #print('\n{} mode, total:{},subdir:{}/{},batch:{}/{},test loss={:.3f},mean test CER={:.3f}\n'.format(
-            #    level, totalN, id_dir+1, len(feature_dirs), batch+1, len(batchRandIxs), l, er/batch_size))
-
             result = output_to_sequence(pre[0][0])
             log_prob = pre[0][1][0][0]/seqLength
-            # print('Output:\n' + result)
-            # print('Log Prob: '+str(log_prob))
             print('Inference uses ' + str(time.time()-start_time) + 's for '+str(feat_len)+'s audio')
 
     return result, log_prob
@@ -69,7 +68,7 @@ def main():
     args['model'] = 'DBiRNN'
     # args['rnncell'] = 'lstm'
     args['num_layer'] = 2
-    args['activation'] = activation_functions_dict['tanh']
+    args['activation'] = 'tanh'
     args['batch_size'] = 1
     args['num_hidden'] = 256
     args['num_feature'] = 39
