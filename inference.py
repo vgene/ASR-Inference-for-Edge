@@ -69,12 +69,12 @@ def main():
     print("Edge Result:\n"+edge_result)
     print("Log Prob:"+str(log_prob))
     if (edge_results['log_prob']>0.1):
-    	print("Result is good enough")
+        print("Result is good enough")
     else:
         cloud_start_time = time.time()
-    	cloud_results = get_results_cloud(cloud_args, audio)
+        cloud_results = get_results_cloud(cloud_args, audio)
         cloud_total_time = time.time() - cloud_start_time
-    	print("Cloud Result:\n"+cloud_results['cloud_result'])
+        print("Cloud Result:\n"+cloud_results['cloud_result'])
 
     times = {**edge_results, **cloud_results}
     times.pop('cloud_result', None)
