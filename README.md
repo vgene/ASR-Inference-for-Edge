@@ -8,6 +8,15 @@ https://github.com/zzw922cn/Automatic_Speech_Recognition
 
 __Make sure you are using Python 3.5!__
 
+## Requirements
+
+tensorflow-gpu
+edit
+numpy
+scipy
+edit_distance
+
+
 ## Preparation
 
 Need to install sox

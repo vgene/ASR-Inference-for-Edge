@@ -5,9 +5,11 @@ import numpy as np
 from utils import preprocess_audio
 from utils import dotdict
 from libri_inference import libri_infer
+from wer import wer
 import pprint
 
-audio = "./test/1069-133709-0000.wav"
+audio_file = "./test/1069-133709-0000.wav"
+ref_file  = "./test/1069-133709-0000.txt"
 
 def get_args_edge():
     args = dict()
@@ -64,7 +66,7 @@ def main():
     cloud_args = get_args_cloud()
 
     edge_start_time = timer()
-    edge_results = get_results_edge(edge_args, audio)
+    edge_results = get_results_edge(edge_args, audio_file)
     edge_total_time = timer() - edge_start_time
 
     print("Edge Result:\n"+edge_results['edge_result'])
@@ -73,9 +75,19 @@ def main():
         print("Result is good enough")
     else:
         cloud_start_time = timer()
-        cloud_results = get_results_cloud(cloud_args, audio)
+        cloud_results = get_results_cloud(cloud_args, audio_file)
         cloud_total_time = timer() - cloud_start_time
         print("Cloud Result:\n"+cloud_results['cloud_result'])
+
+    # Calculate WER
+    if ref_file:
+        with open(ref_file, 'r') as ref_text:
+            ref = ref_text.readlines()[0]
+
+            edge_wer, edge_error_count, ref_token_count = wer(ref, edge_results['edge_result'])
+            cloud_wer, cloud_error_count, ref_token_count = wer(ref, edge_results['edge_result'])
+            print('Edge WER: {:10.3%} ({:10d} / {:10d})'.format(edge_wer, edge_error_count, ref_token_count))
+            print('Edge WER: {:10.3%} ({:10d} / {:10d})'.format(cloud_wer, cloud_error_count, ref_token_count))
 
     times = {**edge_results, **cloud_results}
     times.pop('cloud_result', None)
