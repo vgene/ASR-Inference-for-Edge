@@ -1,15 +1,12 @@
 from timeit import default_timer as timer
-import python_bind
 import pickle
 import numpy as np
-from utils import preprocess_audio
-from utils import dotdict
-from libri_inference import libri_infer
-from wer import wer
 import pprint
 
-audio_file = "./test/1069-133709-0000.wav"
-ref_file  = "./test/1069-133709-0000.txt"
+import python_bind
+from utils import preprocess_audio, dotdict
+from libri_inference import libri_infer
+import argparse
 
 def get_args_edge():
     args = dict()
@@ -61,12 +58,30 @@ def get_results_cloud(args, audio):
             "cloud_transfer_time":t2 - t1, "cloud_receive_time":t3 - t2}
 
 def main():
+    parser = argparse.ArgumentParser(description='Edge Computing for ASR - Test Run')
+    parser.add_argument('audio_file', nargs="+", type=str,
+                        help='Path to the audio file to run (WAV format)')
+    parser.add_argument('ref_file', nargs="?", type=str,
+                        help='Path to the configuration file specifying the alphabet used by the network')
+    parser.add_argument('cloud_ip', type=str, nargs='?',
+                        help='IP of cloud server')
+    parser.add_argument('cloud_port', type=int, nargs='?',
+                        help='Port of cloud server')
+    args = parser.parse_args()
+
+    # TODO: set IP and Port
+    # python_bind.set(IP)
+    #
+
+    # TODO: check audio file!
+    # TODO: check ref file!
+
     # Main Logic
     edge_args = get_args_edge()
     cloud_args = get_args_cloud()
 
     edge_start_time = timer()
-    edge_results = get_results_edge(edge_args, audio_file)
+    edge_results = get_results_edge(edge_args, args.audio_file)
     edge_total_time = timer() - edge_start_time
 
     print("Edge Result:\n"+edge_results['edge_result'])
@@ -75,12 +90,13 @@ def main():
         print("Result is good enough")
     else:
         cloud_start_time = timer()
-        cloud_results = get_results_cloud(cloud_args, audio_file)
+        cloud_results = get_results_cloud(cloud_args, args.audio_file)
         cloud_total_time = timer() - cloud_start_time
         print("Cloud Result:\n"+cloud_results['cloud_result'])
 
     # Calculate WER
-    if ref_file:
+    if args.ref_file:
+        from wer import wer
         with open(ref_file, 'r') as ref_text:
             ref = ref_text.readlines()[0]
 

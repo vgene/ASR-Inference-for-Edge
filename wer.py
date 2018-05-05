@@ -28,5 +28,5 @@ def wer(ref, hyp):
     # error_count = get_error_count(sm)
     match_count = get_match_count(sm)
     # wrr = match_count / ref_token_count
-    wer = 1 - error_count / ref_token_count
+    wer = 1 - match_count / ref_token_count
     return wer, error_count, ref_token_count

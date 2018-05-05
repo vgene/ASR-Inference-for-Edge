@@ -1,10 +1,11 @@
 import socket
 
+CLOUD_IP = "222.29.98.176"
+CLOUD_PORT = 12581
+
 client = None
 server = None
 isServer = False
-CLOUD_IP = "222.29.98.176"
-CLOUD_PORT = 12581
 
 def int_to_bytes(dt):
     ba = []

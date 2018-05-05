@@ -42,7 +42,7 @@ Run: python3 libri_inference.py
 
 ## Procedure
 
-- Flac转wav
+- Flac to wav
 
     Channels       : 1
     Sample Rate    : 16000
