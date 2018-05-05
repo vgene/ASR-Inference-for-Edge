@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+
+'''
+
+
+'''
+
+
 from edit_distance import SequenceMatcher
 # from functools import reduce
 # error_codes = ['replace', 'delete', 'insert']

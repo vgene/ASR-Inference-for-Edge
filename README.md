@@ -8,6 +8,9 @@ https://github.com/zzw922cn/Automatic_Speech_Recognition
 
 __Make sure you are using Python 3.5!__
 
+## File Description
+
+
 ## Requirements
 
 tensorflow-gpu
@@ -15,7 +18,6 @@ edit
 numpy
 scipy
 edit_distance
-
 
 ## Preparation
 

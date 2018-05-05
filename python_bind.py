@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+
+'''
+To connect edge device with cloud.
+'''
 import socket
 
 CLOUD_IP = "222.29.98.176"
