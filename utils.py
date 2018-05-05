@@ -49,7 +49,7 @@ def preprocess_audio(audio_path):
     fs, audio = wav.read(audio_path)
     if fs != 16000:
         if fs < 16000:
-            print('Warning: original sample rate (%d) is lower than 16kHz. Up-sampling might produce erratic speech recognition.' % (fs), file=sys.stderr)
+            print('Warning: original sample rate (%d) is lower than 16kHz. Up-sampling might produce erratic speech recognition.' % (fs))
 
         sox_cmd = 'sox {} --type raw --bits 16 --channels 1 --rate 16000 - '.format(audio_path)
         try:
