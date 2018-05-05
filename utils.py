@@ -3,6 +3,8 @@ from functools import wraps
 import subprocess
 import scipy.io.wavfile as wav
 import numpy as np
+from sklearn import preprocessing
+from calcmfcc import calcfeat_delta_delta
 
 class dotdict(dict):
     __getattr__ = dict.get
@@ -35,6 +37,13 @@ def output_to_sequence(lmt):
     seq = ''.join(seq)
     return seq
 
+def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_len = 0.02):
+    (rate,sig)= wav.read(filename)
+    feat = calcfeat_delta_delta(sig,rate,
+        win_length=win_len,win_step=win_step,mode=mode,feature_len=feature_len)
+    feat = preprocessing.scale(feat)
+    #feat = np.transpose(feat)
+    return feat, len(sig)*(1/rate)
 
 def preprocess_audio(audio_path):
     fs, audio = wav.read(audio_path)

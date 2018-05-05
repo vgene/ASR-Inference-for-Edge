@@ -35,6 +35,7 @@ def get_results_edge(args, audio):
 
     return libri_result, log_prob
 
+# Args is no use
 def get_results_cloud(args, audio):
     python_bind.init_edge()
     (fs, audio) = preprocess_audio(audio)
