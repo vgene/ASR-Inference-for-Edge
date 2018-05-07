@@ -53,6 +53,50 @@ def libri_infer(args, audio_file):
             "build_model_time":t2-t1, "start_session_time":t3-t2,
             "infer_time":t4-t3}
 
+
+def load_graph(frozen_graph_filename):
+    # We load the protobuf file from the disk and parse it to retrieve the
+    # unserialized graph_def
+    with tf.gfile.GFile(frozen_graph_filename, "rb") as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
+
+    # Then, we import the graph_def into a new Graph and returns it
+    with tf.Graph().as_default() as graph:
+        # The name var will prefix every op/nodes in your graph
+        # Since we load everything in a new graph, this is not needed
+        tf.import_graph_def(graph_def, name="prefix")
+    return graph
+
+
+def libri_infer_from_freeze(args, audio_file):
+    t0 = timer()
+    feat, feat_len = getFeature(audio_file)
+    t1 = timer()
+    graph = load_graph(os.join(args.savedir,'freezed.pb'))
+    t2 = timer()
+
+    print(model.config)
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+
+    with tf.Session(graph=graph, config=config) as sess:
+        # restore from stored model
+        batchInputs = feat[:,np.newaxis,:]
+        #batchInputs = feat
+        batchSeqLengths = [seqLength]
+        feedDict = {model.inputX: batchInputs, model.seqLengths: batchSeqLengths}
+        t3 = timer()
+
+        pre = sess.run([model.predictions], feed_dict=feedDict)
+        result = output_to_sequence(pre[0][0])
+        log_prob = pre[0][1][0][0]/seqLength
+        t4 = timer()
+
+    return {"result":result, "log_prob":log_prob, "preprocess_time":t1-t0,
+            "build_model_time":t2-t1, "start_session_time":t3-t2,
+            "infer_time":t4-t3}
+
 def main():
     args = dict()
     # args['mode'] = 'test'

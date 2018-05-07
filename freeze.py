@@ -6,11 +6,11 @@ from utils import dotdict, activation_functions_dict
 dir = os.path.dirname(os.path.realpath(__file__))
 
 def freeze_graph(args, maxTimeSteps):
-    """Extract the sub graph defined by the output nodes and convert 
-    all its variables into constant 
+    """Extract the sub graph defined by the output nodes and convert
+    all its variables into constant
     Args:
         model_dir: the root folder containing the checkpoint state file
-        output_node_names: a string, containing all the output node's names, 
+        output_node_names: a string, containing all the output node's names,
                             comma separated
     """
     model = DBiRNN(args, maxTimeSteps)
@@ -20,7 +20,7 @@ def freeze_graph(args, maxTimeSteps):
     # We retrieve our checkpoint fullpath
     checkpoint = tf.train.get_checkpoint_state(args.savedir)
     input_checkpoint = checkpoint.model_checkpoint_path
-    
+
     # We precise the file fullname of our freezed graph
     absolute_model_dir = "/".join(input_checkpoint.split('/')[:-1])
     output_graph = absolute_model_dir + "/frozen_model.pb"
@@ -36,9 +36,9 @@ def freeze_graph(args, maxTimeSteps):
         # We use a built-in TF helper to export variables to constants
         output_graph_def = tf.graph_util.convert_variables_to_constants(
             sess, # The session is used to retrieve the weights
-            tf.get_default_graph().as_graph_def(), # The graph_def is used to retrieve the nodes 
+            tf.get_default_graph().as_graph_def(), # The graph_def is used to retrieve the nodes
             ["CTCBeamSearchDecoder"] # The output node names are used to select the usefull nodes
-        ) 
+        )
 
         # Finally we serialize and dump the output graph to the filesystem
         with tf.gfile.GFile(output_graph, "wb") as f:
@@ -48,16 +48,16 @@ def freeze_graph(args, maxTimeSteps):
     return output_graph_def
 
 if __name__ == '__main__':
-    args = dict()                                         
-    args['model'] = 'DBiRNN'                              
-    args['num_layer'] = 2                                 
+    args = dict()
+    args['model'] = 'DBiRNN'
+    args['num_layer'] = 2
     args['activation'] = activation_functions_dict['tanh']
-    args['batch_size'] = 1                                
-    args['num_hidden'] = 256                              
-    args['num_feature'] = 39                              
-    args['num_class'] = 29                                
-    args['num_epochs'] = 1                                
-    args['savedir'] = './models/04262030'                 
+    args['batch_size'] = 1
+    args['num_hidden'] = 256
+    args['num_feature'] = 39
+    args['num_class'] = 29
+    args['num_epochs'] = 1
+    args['savedir'] = './models/04262030'
     args = dotdict(args)
-    maxTimeSteps = 4000
+    maxTimeSteps = 1000
     freeze_graph(args, maxTimeSteps)
