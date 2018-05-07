@@ -5,7 +5,7 @@ import pprint
 
 import python_bind
 from utils import preprocess_audio, dotdict
-from libri_inference import libri_infer
+from libri_inference import libri_infer_from_freeze as libri_infer
 import argparse
 
 def get_args_edge():

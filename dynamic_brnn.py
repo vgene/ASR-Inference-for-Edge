@@ -66,10 +66,10 @@ class DBiRNN(object):
         self.graph = tf.Graph()
         with self.graph.as_default():
             self.inputX = tf.placeholder(tf.float32,
-                                         shape=(maxTimeSteps, args.batch_size, args.num_feature))  # [maxL,32,39]
+                                         shape=(maxTimeSteps, args.batch_size, args.num_feature), name='inputX')  # [maxL,32,39]
             inputXrs = tf.reshape(self.inputX, [-1, args.num_feature])
             self.inputList = tf.split(inputXrs, maxTimeSteps, 0)  # convert inputXrs from [32*maxL,39] to [32,maxL,39]
-            self.seqLengths = tf.placeholder(tf.int32, shape=(args.batch_size))
+            self.seqLengths = tf.placeholder(tf.int32, shape=(args.batch_size), name='seqLengths')
             self.config = {'name': args.model,
                            'rnncell': self.cell_fn,
                            'num_layer': args.num_layer,
