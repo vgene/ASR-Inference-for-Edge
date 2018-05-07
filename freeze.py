@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
 from dynamic_brnn import DBiRNN
-from utils import dotdict, activation_functions_dict
+from utils import dotdict
 
 dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     args = dict()
     args['model'] = 'DBiRNN'
     args['num_layer'] = 2
-    args['activation'] = activation_functions_dict['tanh']
+    args['activation'] = tf.tanh
     args['batch_size'] = 1
     args['num_hidden'] = 256
     args['num_feature'] = 39
