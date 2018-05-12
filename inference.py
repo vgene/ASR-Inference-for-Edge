@@ -8,6 +8,7 @@ from utils import preprocess_audio_ds1, preprocess_audio_ds2, dotdict
 from libri_inference import libri_infer_from_freeze as libri_infer
 import argparse
 import struct
+import socket
 
 def get_args_edge():
     args = dict()
@@ -31,6 +32,12 @@ def get_args_cloud_ds1():
     args['alphabet'] = dir_path+"alphabet.txt"
     return dotdict(args)
 
+def get_args_cloud_ds2():
+    args = dict()
+    args['host_ip'] = '222.29.98.226'
+    args['host_port'] = 18086
+    return dotdict(args)
+
 def get_results_edge(args, audio):
     libri_results = libri_infer(args, audio)
     return {"edge_result":libri_results['result'],
@@ -41,9 +48,9 @@ def get_results_edge(args, audio):
             "edge_infer_time":libri_results['infer_time']}
 
 
-def get_results_cloud_ds2(args=None, audio):
+def get_results_cloud_ds2(audio, args=None):
     t0 = timer()
-    data = preprocess_audio_ds2(audio)
+    fs, data = preprocess_audio_ds2(audio)
     t1 = timer()
 
     # Connect to server and send data
@@ -53,7 +60,7 @@ def get_results_cloud_ds2(args=None, audio):
     # print('Speech[length=%d] Sent.' % len(sent))
     t2 = timer()
     # Receive data from the server and shut down
-    received = sock.recv(1024)
+    ds_result = sock.recv(1024)
     # print("Recognition Results: "+(received))
     sock.close()
     t3 = timer()
@@ -62,7 +69,7 @@ def get_results_cloud_ds2(args=None, audio):
         "cloud_transfer_time":t2 - t1, "cloud_receive_time":t3 - t2}
 
 # Args is no use
-def get_results_cloud_ds1(args=None, audio):
+def get_results_cloud_ds1(audio, args=None):
     python_bind.init_edge()
 
     t0 = timer()
@@ -100,7 +107,7 @@ def main():
 
     # Main Logic
     edge_args = get_args_edge()
-    # cloud_args = get_args_cloud_ds1()
+    cloud_args = get_args_cloud_ds2()
 
     get_results_cloud = get_results_cloud_ds2
 
@@ -114,7 +121,7 @@ def main():
         print("Result is good enough")
     else:
         cloud_start_time = timer()
-        cloud_results = get_results_cloud(args.audio_file)
+        cloud_results = get_results_cloud(args.audio_file, args=cloud_args)
         cloud_total_time = timer() - cloud_start_time
         print("Cloud Result:\n"+cloud_results['cloud_result'])
 

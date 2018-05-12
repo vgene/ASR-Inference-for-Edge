@@ -47,9 +47,10 @@ def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_le
     return feat, len(sig)*(1/rate)
 
 def preprocess_audio_ds2(audio_path):
-    fs, audio = wav.read(args.filename)
+    fs, audio = wav.read(audio_path)
     sent = audio.astype("int32").tobytes()
-    struct.pack('>i', len(sent)) + sent
+    data = struct.pack('>i', len(sent)) + sent
+    return fs, data
 
 def preprocess_audio_ds1(audio_path):
     fs, audio = wav.read(audio_path)
@@ -71,4 +72,4 @@ def preprocess_audio_ds1(audio_path):
 
         audio = np.fromstring(output, dtype=np.int16)
 
-    return 16000, audio
+    return fs, audio
