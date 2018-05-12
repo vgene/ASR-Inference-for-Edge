@@ -20,21 +20,21 @@ def main():
     parser.add_argument(
         "--filename",
         default="test.wav",
-        type=int,
+        type=str,
         help="Audio file name. (default: %(default)s)")
     args = parser.parse_args()
 
-    (rate,sig)= wav.read(filename)
+    (rate,sig)= wav.read(args.filename)
 
     # Connect to server and send data
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((args.host_ip, args.host_port))
-    sent = ''.join(sig)
+    sent = sig.astype("int32").tobytes() 
     sock.sendall(struct.pack('>i', len(sent)) + sent)
     print('Speech[length=%d] Sent.' % len(sent))
     # Receive data from the server and shut down
     received = sock.recv(1024)
-    print "Recognition Results: {}".format(received)
+    print("Recognition Results: "+(received))
     sock.close()
 
 if __name__ == '__main__':
