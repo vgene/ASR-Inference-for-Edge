@@ -4,9 +4,10 @@ import numpy as np
 import pprint
 
 import python_bind
-from utils import preprocess_audio, dotdict
+from utils import preprocess_audio_ds1, preprocess_audio_ds2, dotdict
 from libri_inference import libri_infer_from_freeze as libri_infer
 import argparse
+import struct
 
 def get_args_edge():
     args = dict()
@@ -21,7 +22,7 @@ def get_args_edge():
     args['savedir'] = './models/04262030'
     return dotdict(args)
 
-def get_args_cloud():
+def get_args_cloud_ds1():
     args = dict()
     dir_path = "./deepspeech-models/"
     args['model'] = dir_path+"output_graph.pb"
@@ -39,12 +40,33 @@ def get_results_edge(args, audio):
             "edge_start_session_time":libri_results['start_session_time'],
             "edge_infer_time":libri_results['infer_time']}
 
+
+def get_results_cloud_ds2(args=None, audio):
+    t0 = timer()
+    data = preprocess_audio_ds2(audio)
+    t1 = timer()
+
+    # Connect to server and send data
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((args.host_ip, args.host_port))
+    sock.sendall(data)
+    # print('Speech[length=%d] Sent.' % len(sent))
+    t2 = timer()
+    # Receive data from the server and shut down
+    received = sock.recv(1024)
+    # print("Recognition Results: "+(received))
+    sock.close()
+    t3 = timer()
+
+    return {"cloud_result":ds_result, "cloud_preprocess_time": t1 - t0,
+        "cloud_transfer_time":t2 - t1, "cloud_receive_time":t3 - t2}
+
 # Args is no use
-def get_results_cloud(args, audio):
+def get_results_cloud_ds1(args=None, audio):
     python_bind.init_edge()
 
     t0 = timer()
-    (fs, audio) = preprocess_audio(audio)
+    (fs, audio) = preprocess_audio_ds1(audio)
     t1 = timer()
 
     data = pickle.dumps((fs,audio), 2)
@@ -78,7 +100,9 @@ def main():
 
     # Main Logic
     edge_args = get_args_edge()
-    cloud_args = get_args_cloud()
+    # cloud_args = get_args_cloud_ds1()
+
+    get_results_cloud = get_results_cloud_ds2
 
     edge_start_time = timer()
     edge_results = get_results_edge(edge_args, args.audio_file)
@@ -90,7 +114,7 @@ def main():
         print("Result is good enough")
     else:
         cloud_start_time = timer()
-        cloud_results = get_results_cloud(cloud_args, args.audio_file)
+        cloud_results = get_results_cloud(args.audio_file)
         cloud_total_time = timer() - cloud_start_time
         print("Cloud Result:\n"+cloud_results['cloud_result'])
 

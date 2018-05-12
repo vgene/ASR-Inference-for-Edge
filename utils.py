@@ -1,4 +1,5 @@
 import time
+import struct
 from functools import wraps
 import subprocess
 import scipy.io.wavfile as wav
@@ -45,7 +46,12 @@ def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_le
     #feat = np.transpose(feat)
     return feat, len(sig)*(1/rate)
 
-def preprocess_audio(audio_path):
+def preprocess_audio_ds2(audio_path):
+    fs, audio = wav.read(args.filename)
+    sent = audio.astype("int32").tobytes()
+    struct.pack('>i', len(sent)) + sent
+
+def preprocess_audio_ds1(audio_path):
     fs, audio = wav.read(audio_path)
     if fs != 16000:
         if fs < 16000:
