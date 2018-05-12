@@ -23,7 +23,7 @@ def freeze_graph(args, maxTimeSteps):
 
     # We precise the file fullname of our freezed graph
     absolute_model_dir = "/".join(input_checkpoint.split('/')[:-1])
-    output_graph = absolute_model_dir + "/frozen_model.pb"
+    output_graph = absolute_model_dir + "/frozen_model_1.pb"
 
     # We clear devices to allow TensorFlow to control on which device it will load operations
     clear_devices = True
@@ -37,7 +37,7 @@ def freeze_graph(args, maxTimeSteps):
         output_graph_def = tf.graph_util.convert_variables_to_constants(
             sess, # The session is used to retrieve the weights
             tf.get_default_graph().as_graph_def(), # The graph_def is used to retrieve the nodes
-            ["CTCBeamSearchDecoder"] # The output node names are used to select the usefull nodes
+            ["stack"] # The output node names are used to select the usefull nodes
         )
 
         # Finally we serialize and dump the output graph to the filesystem

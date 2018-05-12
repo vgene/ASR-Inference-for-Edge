@@ -1,0 +1,14 @@
+2018-05-12 21:06:45.020193: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+2018-05-12 21:06:45.144026: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:895] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-05-12 21:06:45.144396: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1105] Found device 0 with properties: 
+name: GeForce GTX TITAN X major: 5 minor: 2 memoryClockRate(GHz): 1.076
+pciBusID: 0000:01:00.0
+totalMemory: 11.92GiB freeMemory: 11.75GiB
+2018-05-12 21:06:45.144412: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1195] Creating TensorFlow device (/device:GPU:0) -> (device: 0, name: GeForce GTX TITAN X, pci bus id: 0000:01:00.0, compute capability: 5.2)
+2018-05-12 21:06:46.591114: I tensorflow/stream_executor/dso_loader.cc:139] successfully opened CUDA library libcupti.so.9.0 locally
+output_fb:[[[-0.197898194 -0.0203429628 -0.0318500735]]...]
+hidden:[[[-0.96079576 0.268439561 -0.341378093]]...]
+output_fb:[[[-0.00501378626 -0.0761084 0.170553744]]...]
+hidden:[[[0.382031798 0.398814023 -0.138207883]]...]
+No code trace information
+Cannot parse returned proto: Error parsing message.

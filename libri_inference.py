@@ -74,27 +74,51 @@ def libri_infer_from_freeze(args, audio_file):
     feat, feat_len = getFeature(audio_file)
     seqLength = feat.shape[0]
     t1 = timer()
-    graph = load_graph(os.path.join(args.savedir,'frozen_model.pb'))
+    graph = load_graph(os.path.join(args.savedir,'frozen_model_1.pb'))
     t2 = timer()
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
+    run_metadata = tf.RunMetadata()
     with tf.Session(graph=graph, config=config) as sess:
         # restore from stored model
+        #for op in graph.get_operations():
+        #    print(op)
         batchInputs = feat[:,np.newaxis,:]
         #batchInputs = feat
         batchSeqLengths = [seqLength]
         feedDict = {'prefix/inputX:0': batchInputs, 'prefix/seqLengths:0': batchSeqLengths}
         t3 = timer()
 
-        _, pre, _ = sess.run(['prefix/CTCBeamSearchDecoder:0','prefix/CTCBeamSearchDecoder:1','prefix/CTCBeamSearchDecoder:2'], feed_dict=feedDict)
-        #print(pre)
-        result = output_to_sequence([[0,pre],[0,0]])
-        
-        #log_prob = pre[0][1][0][0]/seqLength
+        logits3d = graph.get_tensor_by_name("prefix/stack:0")
+        predictions = tf.nn.ctc_beam_search_decoder(logits3d, batchSeqLengths, merge_repeated=False, beam_width=100, top_paths=1)
+
+        pre = sess.run(predictions, feed_dict=feedDict,
+                options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
+        result = output_to_sequence(pre[0])
+        log_prob = pre[1][0][0]/seqLength
+
         t4 = timer()
 
-    return {"result":result, "log_prob":0.0001, "preprocess_time":t1-t0,
+    ProfileOptionBuilder = tf.profiler.ProfileOptionBuilder
+    opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory()
+        ).with_node_names(show_name_regexes=['.*libri_inference.py.*']).build()
+
+    tf.profiler.profile(
+        tf.get_default_graph(),
+        run_meta=run_metadata,
+        cmd='code',
+        options=opts)
+
+    # Print to stdout an analysis of the memory usage and the timing information
+    # broken down by operation types.
+    tf.profiler.profile(
+        tf.get_default_graph(),
+        run_meta=run_metadata,
+        cmd='op',
+        options=tf.profiler.ProfileOptionBuilder.time_and_memory())
+
+    return {"result":result, "log_prob":log_prob, "preprocess_time":t1-t0,
             "build_model_time":t2-t1, "start_session_time":t3-t2,
             "infer_time":t4-t3}
 
