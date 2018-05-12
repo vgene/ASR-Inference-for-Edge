@@ -1,6 +1,6 @@
 import os
 import tensorflow as tf
-from dynamic_brnn import DBiRNN
+from dynamic_brnn_infer import DBiRNN
 from utils import dotdict
 
 dir = os.path.dirname(os.path.realpath(__file__))
@@ -27,11 +27,12 @@ def freeze_graph(args, maxTimeSteps):
 
     # We clear devices to allow TensorFlow to control on which device it will load operations
     clear_devices = True
-
     # We start a session using a temporary fresh Graph
     with tf.Session(graph=model.graph) as sess:
         # We import the meta graph in the current default Graph
-        model.saver.restore(sess, input_checkpoint)
+        
+        saver = tf.train.Saver()
+        saver.restore(sess, input_checkpoint)
 
         # We use a built-in TF helper to export variables to constants
         output_graph_def = tf.graph_util.convert_variables_to_constants(

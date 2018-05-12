@@ -38,12 +38,13 @@ def build_multi_dynamic_brnn(args,
         # forward states, backward states
         output_state_fw, output_state_bw = output_states
         # output_fb = tf.concat(2, [output_fw, output_bw])
-        output_fb = tf.concat([output_fw, output_bw], 2)
-        output_fb = tf.Print(output_fb, [output_fb], message='output_fb:')
-        shape = output_fb.get_shape().as_list()
-        output_fb = tf.reshape(output_fb, [shape[0], shape[1], 2, int(shape[2] / 2)])
+        output_fb = tf.stack([output_fw, output_bw], 2, name='output_fb')
+        #output_fb = tf.concat([output_fw, output_bw], 2)
+        output_fb = tf.Print(output_fb, [output_fb.get_shape()], message='output_fb:')
+        #shape = output_fb.get_shape().as_list()
+        #output_fb = tf.reshape(output_fb, [shape[0], shape[1], 2, int(shape[2] / 2)])
+        #output_fb = tf.Print(output_fb, [output_fb.get_shape()], message='after reshape:')
         hidden = tf.reduce_sum(output_fb, 2)
-        hidden = tf.Print(hidden, [hidden],message='hidden:')
         # hidden = dropout(hidden, args.keep_prob, (args.mode == 'train')) #Apr 19
 
         if i != args.num_layer - 1:

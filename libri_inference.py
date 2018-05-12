@@ -7,7 +7,7 @@ import tensorflow as tf
 from tensorflow.python.ops import ctc_ops as ctc
 
 # from speechvalley.utils import count_params
-from dynamic_brnn import DBiRNN
+from dynamic_brnn_infer import DBiRNN
 from utils import dotdict, describe, output_to_sequence, getFeature
 
 activation_functions_dict = {
@@ -40,7 +40,8 @@ def libri_infer(args, audio_file):
             print('Model restored from:' + args.savedir)
             batchInputs = feat[:,np.newaxis,:]
             #batchInputs = feat
-            batchSeqLengths = [seqLength]
+            #batchSeqLengths = [seqLength]
+            batchSeqLengths = seqLength
             feedDict = {model.inputX: batchInputs, model.seqLengths: batchSeqLengths}
             t3 = timer()
 
@@ -57,15 +58,20 @@ def libri_infer(args, audio_file):
 def load_graph(frozen_graph_filename):
     # We load the protobuf file from the disk and parse it to retrieve the
     # unserialized graph_def
-    with tf.gfile.GFile(frozen_graph_filename, "rb") as f:
+    t0 = timer()
+    with tf.gfile.FastGFile(frozen_graph_filename, "rb") as f:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
-
+    t1 = timer()
     # Then, we import the graph_def into a new Graph and returns it
     with tf.Graph().as_default() as graph:
         # The name var will prefix every op/nodes in your graph
         # Since we load everything in a new graph, this is not needed
-        tf.import_graph_def(graph_def, name="prefix")
+        tf.import_graph_def(graph_def, name='infer')
+    t2 = timer()
+
+    print("time1:"+str(t1-t0))
+    print("time2:"+str(t2-t1))
     return graph
 
 
@@ -83,40 +89,41 @@ def libri_infer_from_freeze(args, audio_file):
     with tf.Session(graph=graph, config=config) as sess:
         # restore from stored model
         #for op in graph.get_operations():
-        #    print(op)
+        #    print(op.name)
         batchInputs = feat[:,np.newaxis,:]
         #batchInputs = feat
         batchSeqLengths = [seqLength]
-        feedDict = {'prefix/inputX:0': batchInputs, 'prefix/seqLengths:0': batchSeqLengths}
+        feedDict = {'infer/inputX:0': batchInputs, 'infer/seqLengths:0': batchSeqLengths}
         t3 = timer()
 
-        logits3d = graph.get_tensor_by_name("prefix/stack:0")
+        logits3d = graph.get_tensor_by_name("infer/stack:0")
         predictions = tf.nn.ctc_beam_search_decoder(logits3d, batchSeqLengths, merge_repeated=False, beam_width=100, top_paths=1)
 
-        pre = sess.run(predictions, feed_dict=feedDict,
-                options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
+        pre = sess.run(predictions, feed_dict=feedDict)
+        #pre = sess.run(predictions, feed_dict=feedDict,
+                #options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
         result = output_to_sequence(pre[0])
         log_prob = pre[1][0][0]/seqLength
 
         t4 = timer()
 
-    ProfileOptionBuilder = tf.profiler.ProfileOptionBuilder
-    opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory()
-        ).with_node_names(show_name_regexes=['.*libri_inference.py.*']).build()
+   # ProfileOptionBuilder = tf.profiler.ProfileOptionBuilder
+   # opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory()
+   #     ).with_node_names(show_name_regexes=['.*libri_inference.py.*']).build()
 
-    tf.profiler.profile(
-        tf.get_default_graph(),
-        run_meta=run_metadata,
-        cmd='code',
-        options=opts)
-
-    # Print to stdout an analysis of the memory usage and the timing information
-    # broken down by operation types.
-    tf.profiler.profile(
-        tf.get_default_graph(),
-        run_meta=run_metadata,
-        cmd='op',
-        options=tf.profiler.ProfileOptionBuilder.time_and_memory())
+   # tf.profiler.profile(
+   #     tf.get_default_graph(),
+   #     run_meta=run_metadata,
+   #     cmd='code',
+   #     options=opts)
+   #
+   # # Print to stdout an analysis of the memory usage and the timing information
+   # # broken down by operation types.
+   # tf.profiler.profile(
+   #     tf.get_default_graph(),
+   #     run_meta=run_metadata,
+   #     cmd='op',
+   #     options=tf.profiler.ProfileOptionBuilder.time_and_memory())
 
     return {"result":result, "log_prob":log_prob, "preprocess_time":t1-t0,
             "build_model_time":t2-t1, "start_session_time":t3-t2,
