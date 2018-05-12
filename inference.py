@@ -60,7 +60,7 @@ def get_results_cloud_ds2(audio, args=None):
     # print('Speech[length=%d] Sent.' % len(sent))
     t2 = timer()
     # Receive data from the server and shut down
-    ds_result = sock.recv(1024)
+    ds_result = str(sock.recv(1024),'utf-8')
     # print("Recognition Results: "+(received))
     sock.close()
     t3 = timer()
