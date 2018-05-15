@@ -10,6 +10,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.rnn import bidirectional_dynamic_rnn
+#from tensorflow.python.ops.rnn import static_bidirectional_rnn
 
 # from speechvalley.utils import describe, dropout
 from utils import describe

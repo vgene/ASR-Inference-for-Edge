@@ -60,5 +60,5 @@ if __name__ == '__main__':
     args['num_epochs'] = 1
     args['savedir'] = './models/04262030'
     args = dotdict(args)
-    maxTimeSteps = 1640
+    maxTimeSteps = 2000
     freeze_graph(args, maxTimeSteps)

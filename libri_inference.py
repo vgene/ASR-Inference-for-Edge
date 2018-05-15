@@ -18,10 +18,10 @@ activation_functions_dict = {
 
 def libri_infer(args, audio_file):
     t0 = timer()
-    feat, feat_len = getFeature(audio_file)
+    feat, feat_len, audio_len = getFeature(audio_file)
     t1 = timer()
 
-    seqLength = feat.shape[0]
+    seqLength = feat_len
     maxTimeSteps = feat.shape[0]
     args.activation = activation_functions_dict[args.activation]
 
@@ -31,6 +31,7 @@ def libri_infer(args, audio_file):
     print(model.config)
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
+    #config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
     with tf.Session(graph=model.graph, config=config) as sess:
         # restore from stored model
@@ -70,15 +71,14 @@ def load_graph(frozen_graph_filename):
         tf.import_graph_def(graph_def, name='infer')
     t2 = timer()
 
-    print("time1:"+str(t1-t0))
-    print("time2:"+str(t2-t1))
+    print("Load Model Time:"+str(t1-t0))
+    print("Load Model Parsing Time:"+str(t2-t1))
     return graph
 
 
 def libri_infer_from_freeze(args, audio_file):
     t0 = timer()
-    feat, feat_len = getFeature(audio_file)
-    seqLength = feat.shape[0]
+    feat, feat_len, audio_len = getFeature(audio_file, maxLength=2000)
     t1 = timer()
     graph = load_graph(os.path.join(args.savedir,'frozen_model_1.pb'))
     t2 = timer()
@@ -92,7 +92,7 @@ def libri_infer_from_freeze(args, audio_file):
         #    print(op.name)
         batchInputs = feat[:,np.newaxis,:]
         #batchInputs = feat
-        batchSeqLengths = [seqLength]
+        batchSeqLengths = [feat_len]
         feedDict = {'infer/inputX:0': batchInputs, 'infer/seqLengths:0': batchSeqLengths}
         t3 = timer()
 
@@ -103,7 +103,7 @@ def libri_infer_from_freeze(args, audio_file):
         #pre = sess.run(predictions, feed_dict=feedDict,
                 #options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
         result = output_to_sequence(pre[0])
-        log_prob = pre[1][0][0]/seqLength
+        log_prob = pre[1][0][0]/feat_len
 
         t4 = timer()
 

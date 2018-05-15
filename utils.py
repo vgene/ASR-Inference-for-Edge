@@ -38,13 +38,16 @@ def output_to_sequence(lmt):
     seq = ''.join(seq)
     return seq
 
-def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_len = 0.02):
+def getFeature(filename, mode = 'mfcc', feature_len =13, win_step = 0.01, win_len = 0.02, maxLength = None):
     (rate,sig)= wav.read(filename)
     feat = calcfeat_delta_delta(sig,rate,
         win_length=win_len,win_step=win_step,mode=mode,feature_len=feature_len)
     feat = preprocessing.scale(feat)
+    feat_len = feat.shape[0]
     #feat = np.transpose(feat)
-    return feat, len(sig)*(1/rate)
+    if maxLength:
+        feat = np.pad(feat, ((0, maxLength-feat_len), (0,0)), 'constant')
+    return feat, feat_len, len(sig)*(1/rate)
 
 def preprocess_audio_ds2(audio_path):
     fs, audio = wav.read(audio_path)
