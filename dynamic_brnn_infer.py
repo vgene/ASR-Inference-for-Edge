@@ -24,8 +24,11 @@ def build_multi_dynamic_brnn(args,
     hid_input = inputX
     for i in range(args.num_layer):
         scope = 'DBRNN_' + str(i + 1)
-        forward_cell = cell_fn(args.num_hidden, activation=args.activation)
-        backward_cell = cell_fn(args.num_hidden, activation=args.activation)
+        forward_cell = cell_fn(args.num_hidden,  name='basic_lstm_cell')
+        backward_cell = cell_fn(args.num_hidden,  name='basic_lstm_cell')
+
+        #forward_cell = cell_fn(args.num_hidden, activation=args.activation, name='basic_lstm_cell')
+        #backward_cell = cell_fn(args.num_hidden, activation=args.activation, name='basic_lstm_cell')
         # tensor of shape: [max_time, batch_size, input_size]
         outputs, _ = bidirectional_dynamic_rnn(forward_cell, backward_cell,
                                                            inputs=hid_input,
@@ -55,7 +58,7 @@ class DBiRNN(object):
     def __init__(self, args, maxTimeSteps):
         self.args = args
         self.maxTimeSteps = maxTimeSteps
-        self.cell_fn = tf.contrib.rnn.BasicLSTMCell
+        self.cell_fn = tf.contrib.rnn.LSTMBlockCell #LSTMCell/ LSTMBlockCell
         self.build_graph(args, maxTimeSteps)
 
     @describe

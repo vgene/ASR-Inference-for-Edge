@@ -10,6 +10,9 @@ from tensorflow.python.ops import ctc_ops as ctc
 from dynamic_brnn_infer import DBiRNN
 from utils import dotdict, describe, output_to_sequence, getFeature
 
+ADD_TRACE = True
+PROFILE_TRACE = True
+
 activation_functions_dict = {
     'sigmoid': tf.sigmoid, 'tanh': tf.tanh, 'relu': tf.nn.relu, 'relu6': tf.nn.relu6,
     'elu': tf.nn.elu, 'softplus': tf.nn.softplus, 'softsign': tf.nn.softsign
@@ -68,6 +71,7 @@ def load_graph(frozen_graph_filename):
     with tf.Graph().as_default() as graph:
         # The name var will prefix every op/nodes in your graph
         # Since we load everything in a new graph, this is not needed
+        dir(tf.contrib)
         tf.import_graph_def(graph_def, name='infer')
     t2 = timer()
 
@@ -99,36 +103,41 @@ def libri_infer_from_freeze(args, audio_file):
         logits3d = graph.get_tensor_by_name("infer/stack:0")
         predictions = tf.nn.ctc_beam_search_decoder(logits3d, batchSeqLengths, merge_repeated=False, beam_width=100, top_paths=1)
 
-        #pre = sess.run(predictions, feed_dict=feedDict)
-        pre = sess.run(predictions, feed_dict=feedDict,
-                options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
+        if ADD_TRACE:
+            pre = sess.run(predictions, feed_dict=feedDict,
+                    options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
+        else:
+            pre = sess.run(predictions, feed_dict=feedDict)
+
         result = output_to_sequence(pre[0])
         log_prob = pre[1][0][0]/feat_len
 
         t4 = timer()
 
-        LOGDIR='./log'
-        infer_writer = tf.summary.FileWriter(LOGDIR)
-        infer_writer.add_graph(sess.graph)
-        infer_writer.add_run_metadata(run_metadata,'infer')
+        if ADD_TRACE:
+            LOGDIR='./log'
+            infer_writer = tf.summary.FileWriter(LOGDIR)
+            infer_writer.add_graph(sess.graph)
+            infer_writer.add_run_metadata(run_metadata,'infer')
 
-   # ProfileOptionBuilder = tf.profiler.ProfileOptionBuilder
-   # opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory()
-   #     ).with_node_names(show_name_regexes=['.*libri_inference.py.*']).build()
+    if PROFILE_TRACE:
+        ProfileOptionBuilder = tf.profiler.ProfileOptionBuilder
+        opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory()
+            ).with_node_names(show_name_regexes=['.*']).build()
 
-   # tf.profiler.profile(
-   #     tf.get_default_graph(),
-   #     run_meta=run_metadata,
-   #     cmd='code',
-   #     options=opts)
-   #
-   # # Print to stdout an analysis of the memory usage and the timing information
-   # # broken down by operation types.
-   # tf.profiler.profile(
-   #     tf.get_default_graph(),
-   #     run_meta=run_metadata,
-   #     cmd='op',
-   #     options=tf.profiler.ProfileOptionBuilder.time_and_memory())
+        tf.profiler.profile(
+            tf.get_default_graph(),
+            run_meta=run_metadata,
+            cmd='code',
+            options=opts)
+       
+        # Print to stdout an analysis of the memory usage and the timing information
+        # broken down by operation types.
+        tf.profiler.profile(
+            tf.get_default_graph(),
+            run_meta=run_metadata,
+            cmd='op',
+            options=tf.profiler.ProfileOptionBuilder.time_and_memory())
 
     return {"result":result, "log_prob":log_prob, "preprocess_time":t1-t0,
             "build_model_time":t2-t1, "start_session_time":t3-t2,
