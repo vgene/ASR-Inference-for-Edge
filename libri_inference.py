@@ -99,13 +99,18 @@ def libri_infer_from_freeze(args, audio_file):
         logits3d = graph.get_tensor_by_name("infer/stack:0")
         predictions = tf.nn.ctc_beam_search_decoder(logits3d, batchSeqLengths, merge_repeated=False, beam_width=100, top_paths=1)
 
-        pre = sess.run(predictions, feed_dict=feedDict)
-        #pre = sess.run(predictions, feed_dict=feedDict,
-                #options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
+        #pre = sess.run(predictions, feed_dict=feedDict)
+        pre = sess.run(predictions, feed_dict=feedDict,
+                options=tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE), run_metadata=run_metadata)
         result = output_to_sequence(pre[0])
         log_prob = pre[1][0][0]/feat_len
 
         t4 = timer()
+
+        LOGDIR='./log'
+        infer_writer = tf.summary.FileWriter(LOGDIR)
+        infer_writer.add_graph(sess.graph)
+        infer_writer.add_run_metadata(run_metadata,'infer')
 
    # ProfileOptionBuilder = tf.profiler.ProfileOptionBuilder
    # opts = ProfileOptionBuilder(ProfileOptionBuilder.time_and_memory()
